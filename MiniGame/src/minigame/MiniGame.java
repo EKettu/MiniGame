@@ -1,7 +1,9 @@
 package minigame;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
@@ -9,18 +11,32 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import objects.Item;
+import objects.Monster;
 import objects.Player;
 
 public class MiniGame extends Application {
+    
+    private List<Monster> monsters;
+    private static Random pieceLottery;
+    
+    private static Item item;
+    
+    private static int boardWidth;
+    private static int boardLength;
 
     @Override
     public void start(Stage stage) {
+        
+        boardWidth = 100;
+        boardLength = 100;
         Pane board = new Pane();
-        board.setPrefSize(300, 300);
+        board.setPrefSize(boardWidth, boardLength);
 
-        Player player = new Player(100, 100);
-
+        Player player = new Player(1, 1);
+        item = createItem();
         board.getChildren().add(player.getGameObject());
+        board.getChildren().add(item.getGameObject());
 
         Map<KeyCode, Boolean> keysPressed = new HashMap<>();
 
@@ -36,8 +52,6 @@ public class MiniGame extends Application {
         });
 
         stage.show();
-
-        Point2D movement = new Point2D(1, 0);
 
         new AnimationTimer() {
 
@@ -56,10 +70,24 @@ public class MiniGame extends Application {
                 if (keysPressed.getOrDefault(KeyCode.S, false)) {
                     player.move(0, 1);
                 }
-
+                if(player.collide(item)) {
+                    board.getChildren().remove(item.getGameObject());
+                    Item newItem = createItem();
+                    item.setGameObject(newItem.getGameObject());
+                    board.getChildren().add(item.getGameObject());
+                }
             }
         }
                 .start();
+    }
+    
+    private static Item createItem() {
+        pieceLottery = new Random();
+        int itemX = pieceLottery.nextInt(boardWidth);
+        int itemY = pieceLottery.nextInt(boardLength);
+        
+        Item item = new Item(itemX, itemY);
+        return item;
     }
 
     public static void main(String[] args) {

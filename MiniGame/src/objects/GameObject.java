@@ -9,6 +9,8 @@ public class GameObject {
 
     private Polygon object;
     private Point2D movement;
+    
+    private boolean isAlive;
 
     public GameObject(Polygon objectShape, Color color, int x, int y) {
         this.object = objectShape;
@@ -16,10 +18,15 @@ public class GameObject {
         this.object.setTranslateX(x);
         this.object.setTranslateY(y);
         this.movement = new Point2D(0, 0);
+        this.isAlive = true;
     }
 
     public Polygon getGameObject() {
         return object;
+    }
+    
+    public void setGameObject(Polygon object) {
+        this.object = object;
     }
 
     public void move(int x, int y) {
