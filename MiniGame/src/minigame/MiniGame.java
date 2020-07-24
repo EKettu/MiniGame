@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import objects.Hunter;
 import objects.Item;
 import objects.Monster;
 import objects.Player;
@@ -38,10 +39,14 @@ public class MiniGame extends Application {
         item = createItem();
         Monster monster = createMonster();
         monsters.add(monster);
-
+        
+        Hunter hunter = new Hunter(100, 100);
+        hunter.setTarget(player.getGameObject());
+        
         board.getChildren().add(player.getGameObject());
         board.getChildren().add(item.getGameObject());
         board.getChildren().add(monster.getGameObject());
+        board.getChildren().add(hunter.getGameObject());
 
         Map<KeyCode, Boolean> keysPressed = new HashMap<>();
 
@@ -92,6 +97,7 @@ public class MiniGame extends Application {
                     board.getChildren().add(newMonster.getGameObject());
                     monsters.add(newMonster);
                 }
+//                hunter.hunt();
                 monsters.forEach(monster -> {
                     moveMonster(monster);
                     if (player.collide(monster)) {
