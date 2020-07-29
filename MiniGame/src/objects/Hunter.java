@@ -46,8 +46,4 @@ public class Hunter extends GameObject {
         this.move(finalX, finalY);
     }
 
-//    @Override
-//    public void move(int x, int y) {
-//
-//    }
 }

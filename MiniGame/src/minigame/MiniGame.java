@@ -26,6 +26,10 @@ public class MiniGame extends Application {
     private static int boardWidth;
     private static int boardLength;
 
+    private boolean hunterAlive;
+
+    private static Hunter hunter;
+
     @Override
     public void start(Stage stage) {
 
@@ -35,18 +39,18 @@ public class MiniGame extends Application {
         Pane board = new Pane();
         board.setPrefSize(boardWidth, boardLength);
 
+        hunterAlive = false;
+
         Player player = new Player(1, 1);
         item = createItem();
         Monster monster = createMonster();
         monsters.add(monster);
-        
-        Hunter hunter = new Hunter(100, 100);
-        hunter.setTarget(player.getGameObject());
-        
+
+        hunter = new Hunter(100, 100);
+
         board.getChildren().add(player.getGameObject());
         board.getChildren().add(item.getGameObject());
         board.getChildren().add(monster.getGameObject());
-        board.getChildren().add(hunter.getGameObject());
 
         Map<KeyCode, Boolean> keysPressed = new HashMap<>();
 
@@ -68,36 +72,25 @@ public class MiniGame extends Application {
             @Override
             public void handle(long now
             ) {
-                if (keysPressed.getOrDefault(KeyCode.A, false)) {
-                    if (player.getGameObject().getBoundsInParent().getMinX() > 0) {
-                        player.move(-1, 0);
-                    }
-                }
-                if (keysPressed.getOrDefault(KeyCode.D, false)) {
-                    if (player.getGameObject().getBoundsInParent().getMaxX() < boardWidth) {
-                        player.move(1, 0);
-                    }
-                }
-                if (keysPressed.getOrDefault(KeyCode.W, false)) {
-                    if (player.getGameObject().getBoundsInParent().getMinY() > 0) {
-                        player.move(0, -1);
-                    }
-                }
-                if (keysPressed.getOrDefault(KeyCode.S, false)) {
-                    if (player.getGameObject().getBoundsInParent().getMaxY() < boardLength) {
-                        player.move(0, 1);
+                movePlayer(keysPressed, player);
+                if (hunterAlive) {
+                    hunter.hunt();
+                    if (player.collide(hunter)) {
+                        stop();
                     }
                 }
                 if (player.collide(item)) {
-                    board.getChildren().remove(item.getGameObject());
-                    Item newItem = createItem();
-                    item.setGameObject(newItem.getGameObject());
-                    board.getChildren().add(item.getGameObject());
-                    Monster newMonster = createMonster();
-                    board.getChildren().add(newMonster.getGameObject());
-                    monsters.add(newMonster);
+                    if (hunterAlive) {
+                        board.getChildren().remove(hunter.getGameObject());
+                        hunterAlive = false;
+                    }
+                    boolean hunterSpawns = hunterSpawned();
+                    if (hunterSpawns) {
+                        addHunter(board, hunter, player);
+                    }
+                    addItem(board, item);
+                    addMonster(board);
                 }
-//                hunter.hunt();
                 monsters.forEach(monster -> {
                     moveMonster(monster);
                     if (player.collide(monster)) {
@@ -128,6 +121,29 @@ public class MiniGame extends Application {
         return monster;
     }
 
+    private void movePlayer(Map<KeyCode, Boolean> keysPressed, Player player) {
+        if (keysPressed.getOrDefault(KeyCode.A, false)) {
+            if (player.getGameObject().getBoundsInParent().getMinX() > 0) {
+                player.move(-1, 0);
+            }
+        }
+        if (keysPressed.getOrDefault(KeyCode.D, false)) {
+            if (player.getGameObject().getBoundsInParent().getMaxX() < boardWidth) {
+                player.move(1, 0);
+            }
+        }
+        if (keysPressed.getOrDefault(KeyCode.W, false)) {
+            if (player.getGameObject().getBoundsInParent().getMinY() > 0) {
+                player.move(0, -1);
+            }
+        }
+        if (keysPressed.getOrDefault(KeyCode.S, false)) {
+            if (player.getGameObject().getBoundsInParent().getMaxY() < boardLength) {
+                player.move(0, 1);
+            }
+        }
+    }
+
     private static void moveMonster(Monster monster) {
         pieceLottery = new Random();
         int direction = 1 + pieceLottery.nextInt(4);
@@ -151,6 +167,36 @@ public class MiniGame extends Application {
                 monster.move(0, 1);
             }
         }
+    }
+
+    private boolean hunterSpawned() {
+        int probability = 1 + pieceLottery.nextInt(11);
+        if (probability == 9) {
+            hunterAlive = true;
+            return true;
+        }
+        return false;
+    }
+
+    private void addItem(Pane board, Item item) {
+        board.getChildren().remove(item.getGameObject());
+        Item newItem = createItem();
+        item.setGameObject(newItem.getGameObject());
+        board.getChildren().add(item.getGameObject());
+    }
+
+    private void addMonster(Pane board) {
+        Monster newMonster = createMonster();
+        board.getChildren().add(newMonster.getGameObject());
+        monsters.add(newMonster);
+    }
+
+    private void addHunter(Pane board, Hunter hunter, Player player) {
+        board.getChildren().remove(hunter.getGameObject());
+        Hunter newHunter = new Hunter(100, 100);
+        hunter.setGameObject(newHunter.getGameObject());
+        hunter.setTarget(player.getGameObject());
+        board.getChildren().add(hunter.getGameObject());
     }
 
     public static void main(String[] args) {
