@@ -29,8 +29,8 @@ public class Hunter extends GameObject {
 
     public void hunt() {
         double minDistance = Integer.MAX_VALUE;
-        int finalX = 0;
-        int finalY = 0;
+        double finalX = 0;
+        double finalY = 0;
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
                 double distance = calculateEuclideanDist(this.getGameObject().getTranslateX() + i,
@@ -43,6 +43,8 @@ public class Hunter extends GameObject {
 
             }
         }
+        finalX *= 0.35;
+        finalY *= 0.35;
         this.move(finalX, finalY);
     }
 

@@ -26,7 +26,7 @@ public class GameObject {
         this.object = object;
     }
 
-    public void move(int x, int y) {
+    public void move(double x, double y) {
         this.object.setTranslateX(this.object.getTranslateX() + x);
         this.object.setTranslateY(this.object.getTranslateY() + y);
     }
