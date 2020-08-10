@@ -19,52 +19,29 @@ import objects.Player;
 public class MiniGame extends Application {
 
     private List<Monster> monsters;
-    private static Random pieceLottery;
-
-    private static Item item;
+    private static Random pieceLottery;   
+    private Pane board;
+    private static Item item; 
+    private static Player player;
 
     private static int boardWidth;
     private static int boardLength;
 
     private boolean hunterAlive;
-
     private static Hunter hunter;
 
     @Override
-    public void start(Stage stage) {
-
-        monsters = new ArrayList<Monster>();
-        boardWidth = 150;
-        boardLength = 150;
-        Pane board = new Pane();
-        board.setPrefSize(boardWidth, boardLength);
-
-        hunterAlive = false;
-
-        Player player = new Player(1, 1);
-        item = createItem();
-        Monster monster = createMonster();
-        monsters.add(monster);
-
-        hunter = new Hunter(100, 100);
-
-        board.getChildren().add(player.getGameObject());
-        board.getChildren().add(item.getGameObject());
-        board.getChildren().add(monster.getGameObject());
-
+    public void start(Stage stage) {      
+        initializeTheBoard();
         Map<KeyCode, Boolean> keysPressed = new HashMap<>();
-
         Scene scene = new Scene(board);
         stage.setScene(scene);
-
         scene.setOnKeyPressed(event -> {
             keysPressed.put(event.getCode(), Boolean.TRUE);
         });
-
         scene.setOnKeyReleased(event -> {
             keysPressed.put(event.getCode(), Boolean.FALSE);
         });
-
         stage.show();
 
         new AnimationTimer() {
@@ -84,8 +61,7 @@ public class MiniGame extends Application {
                         board.getChildren().remove(hunter.getGameObject());
                         hunterAlive = false;
                     }
-                    boolean hunterSpawns = hunterSpawned();
-                    if (hunterSpawns) {
+                    if (hunterSpawned()) {
                         addHunter(board, hunter, player);
                     }
                     addItem(board, item);
@@ -101,6 +77,25 @@ public class MiniGame extends Application {
         }
                 .start();
 
+    }
+    
+    private void initializeTheBoard() {
+        monsters = new ArrayList<Monster>();
+        boardWidth = 150;
+        boardLength = 150;
+        board = new Pane();
+        board.setPrefSize(boardWidth, boardLength);
+
+        hunterAlive = false;
+        player = new Player(1, 1);
+        item = createItem();
+        Monster monster = createMonster();
+        monsters.add(monster);
+        hunter = new Hunter(100, 100);
+
+        board.getChildren().add(player.getGameObject());
+        board.getChildren().add(item.getGameObject());
+        board.getChildren().add(monster.getGameObject());
     }
 
     private static Item createItem() {
