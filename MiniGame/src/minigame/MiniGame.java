@@ -10,6 +10,9 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import objects.Hunter;
 import objects.Item;
@@ -19,9 +22,10 @@ import objects.Player;
 public class MiniGame extends Application {
 
     private List<Monster> monsters;
-    private static Random pieceLottery;   
-    private Pane board;
-    private static Item item; 
+    private static Random pieceLottery;
+    private static BorderPane border;
+    private static Pane board;
+    private static Item item;
     private static Player player;
 
     private static int boardWidth;
@@ -31,61 +35,72 @@ public class MiniGame extends Application {
     private static Hunter hunter;
 
     @Override
-    public void start(Stage stage) {      
-        initializeTheBoard();
+    public void start(Stage stage) {
+
         Map<KeyCode, Boolean> keysPressed = new HashMap<>();
-        Scene scene = new Scene(board);
-        stage.setScene(scene);
+        border = new BorderPane();
+        boardWidth = 150;
+        boardLength = 150;
+        board = new Pane();
+        board.setPrefSize(boardWidth, boardLength);
+
+        Button start = new Button("Start");
+        border.setTop(start);
+        border.setCenter(board);
+        Scene scene = new Scene(border);
         scene.setOnKeyPressed(event -> {
             keysPressed.put(event.getCode(), Boolean.TRUE);
         });
         scene.setOnKeyReleased(event -> {
             keysPressed.put(event.getCode(), Boolean.FALSE);
         });
-        stage.show();
 
-        new AnimationTimer() {
+        start.setOnAction((event) -> {
+            initializeTheBoard();
+            stage.setScene(scene);
+            stage.show();
 
-            @Override
-            public void handle(long now
-            ) {
-                movePlayer(keysPressed, player);
-                if (hunterAlive) {
-                    hunter.hunt();
-                    if (player.collide(hunter)) {
-                        stop();
-                    }
-                }
-                if (player.collide(item)) {
+            new AnimationTimer() {
+
+                @Override
+                public void handle(long now
+                ) {
+                    movePlayer(keysPressed, player);
                     if (hunterAlive) {
-                        board.getChildren().remove(hunter.getGameObject());
-                        hunterAlive = false;
+                        hunter.hunt();
+                        if (player.collide(hunter)) {
+                            stop();
+                        }
                     }
-                    if (hunterSpawned()) {
-                        addHunter(board, hunter, player);
+                    if (player.collide(item)) {
+                        if (hunterAlive) {
+                            board.getChildren().remove(hunter.getGameObject());
+                            hunterAlive = false;
+                        }
+                        if (hunterSpawned()) {
+                            addHunter(board, hunter, player);
+                        }
+                        addItem(board, item);
+                        addMonster(board);
                     }
-                    addItem(board, item);
-                    addMonster(board);
+                    monsters.forEach(monster -> {
+                        moveMonster(monster);
+                        if (player.collide(monster)) {
+                            stop();
+                        }
+                    });
                 }
-                monsters.forEach(monster -> {
-                    moveMonster(monster);
-                    if (player.collide(monster)) {
-                        stop();
-                    }
-                });
             }
-        }
-                .start();
+                    .start();
 
+        });
+
+        stage.setScene(scene);
+        stage.show();
     }
-    
+
     private void initializeTheBoard() {
         monsters = new ArrayList<Monster>();
-        boardWidth = 150;
-        boardLength = 150;
-        board = new Pane();
-        board.setPrefSize(boardWidth, boardLength);
-
         hunterAlive = false;
         player = new Player(1, 1);
         item = createItem();
@@ -165,8 +180,8 @@ public class MiniGame extends Application {
     }
 
     private boolean hunterSpawned() {
-        int probability = 1 + pieceLottery.nextInt(11);
-        if (probability == 9) {
+        int probability = 1 + pieceLottery.nextInt(6);
+        if (probability == 5) {
             hunterAlive = true;
             return true;
         }
