@@ -44,7 +44,7 @@ public class MiniGame extends Application {
         board = new Pane();
         board.setPrefSize(boardWidth, boardLength);
 
-        Button start = new Button("Start");
+        Button start = new Button("New Game");
         border.setTop(start);
         border.setCenter(board);
         Scene scene = new Scene(border);
@@ -56,6 +56,9 @@ public class MiniGame extends Application {
         });
 
         start.setOnAction((event) -> {
+            if(monsters!=null) {
+                clearTheBoard();
+            }
             initializeTheBoard();
             stage.setScene(scene);
             stage.show();
@@ -99,6 +102,18 @@ public class MiniGame extends Application {
         stage.show();
     }
 
+    private void clearTheBoard() {
+        board.getChildren().remove(player.getGameObject());
+        board.getChildren().remove(item.getGameObject());
+        monsters.forEach(monster -> {
+            board.getChildren().remove(monster.getGameObject());
+        });
+        if (hunterAlive) {
+            board.getChildren().remove(hunter.getGameObject());
+        }
+
+    }
+
     private void initializeTheBoard() {
         monsters = new ArrayList<Monster>();
         hunterAlive = false;
@@ -115,8 +130,8 @@ public class MiniGame extends Application {
 
     private static Item createItem() {
         pieceLottery = new Random();
-        int itemX = pieceLottery.nextInt(boardWidth - 1);
-        int itemY = pieceLottery.nextInt(boardLength - 1);
+        int itemX = pieceLottery.nextInt(boardWidth - 2);
+        int itemY = pieceLottery.nextInt(boardLength - 2);
 
         Item item = new Item(itemX, itemY);
         return item;
@@ -126,9 +141,22 @@ public class MiniGame extends Application {
         pieceLottery = new Random();
         int monsterX = pieceLottery.nextInt(boardWidth - 5);
         int monsterY = pieceLottery.nextInt(boardLength - 5);
-
+        while (isMonsterTooClose(monsterX, monsterY)) {
+            monsterX = pieceLottery.nextInt(boardWidth - 5);
+            monsterY = pieceLottery.nextInt(boardLength - 5);
+        }
         Monster monster = new Monster(monsterX, monsterY);
         return monster;
+    }
+
+    private static boolean isMonsterTooClose(int monsterX, int monsterY) {
+        if ((monsterX > player.getGameObject().getTranslateX() - 2
+                && monsterX < player.getGameObject().getTranslateX() + 2) && 
+                (monsterY > player.getGameObject().getTranslateY() - 2
+                && monsterY < player.getGameObject().getTranslateY() + 2)) {
+            return true;
+        }
+        return false;
     }
 
     private void movePlayer(Map<KeyCode, Boolean> keysPressed, Player player) {
