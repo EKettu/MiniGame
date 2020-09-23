@@ -5,14 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField; 
 import javafx.stage.Stage;
 import objects.Hunter;
 import objects.Item;
@@ -45,8 +46,14 @@ public class MiniGame extends Application {
         board.setPrefSize(boardWidth, boardLength);
 
         Button start = new Button("New Game");
-        border.setTop(start);
-        border.setCenter(board);
+        Button quit = new Button("Quit");
+        TextField text = new TextField("Points: 0");
+        
+        AtomicInteger points = new AtomicInteger();
+        border.setLeft(start);
+        border.setRight(quit);
+        border.setCenter(text);
+        border.setBottom(board);
         Scene scene = new Scene(border);
         scene.setOnKeyPressed(event -> {
             keysPressed.put(event.getCode(), Boolean.TRUE);
@@ -54,7 +61,9 @@ public class MiniGame extends Application {
         scene.setOnKeyReleased(event -> {
             keysPressed.put(event.getCode(), Boolean.FALSE);
         });
-
+        quit.setOnAction((event) -> {
+            stage.close();
+        });
         start.setOnAction((event) -> {
             if(monsters!=null) {
                 clearTheBoard();
@@ -85,6 +94,7 @@ public class MiniGame extends Application {
                         }
                         addItem(board, item);
                         addMonster(board);
+                        text.setText("Points: " + points.addAndGet(10));
                     }
                     monsters.forEach(monster -> {
                         moveMonster(monster);
