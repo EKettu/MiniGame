@@ -7,7 +7,7 @@ public class Hunter extends GameObject {
     private Polygon target;
 
     public Hunter(int x, int y) {
-        super(new Polygon(0, 0, 10, 0, 10, 10, 0, 10), javafx.scene.paint.Color.BLUEVIOLET, x, y);
+        super(new Polygon(0, 0, 20, 0, 20, 20, 0, 20), javafx.scene.paint.Color.BLUEVIOLET, x, y);
     }
 
     public Polygon getTarget() {

@@ -28,6 +28,7 @@ public class MiniGame extends Application {
     private static Pane board;
     private static Item item;
     private static Player player;
+    private static AtomicInteger points;
 
     private static int boardWidth;
     private static int boardLength;
@@ -40,8 +41,8 @@ public class MiniGame extends Application {
 
         Map<KeyCode, Boolean> keysPressed = new HashMap<>();
         border = new BorderPane();
-        boardWidth = 150;
-        boardLength = 150;
+        boardWidth = 300;
+        boardLength = 300;
         board = new Pane();
         board.setPrefSize(boardWidth, boardLength);
 
@@ -49,7 +50,6 @@ public class MiniGame extends Application {
         Button quit = new Button("Quit");
         TextField text = new TextField("Points: 0");
         
-        AtomicInteger points = new AtomicInteger();
         border.setLeft(start);
         border.setRight(quit);
         border.setCenter(text);
@@ -69,6 +69,7 @@ public class MiniGame extends Application {
                 clearTheBoard();
             }
             initializeTheBoard();
+            text.setText("Points: " + points);
             stage.setScene(scene);
             stage.show();
 
@@ -132,6 +133,8 @@ public class MiniGame extends Application {
         Monster monster = createMonster();
         monsters.add(monster);
         hunter = new Hunter(100, 100);
+        points = new AtomicInteger();
+        points.set(0);
 
         board.getChildren().add(player.getGameObject());
         board.getChildren().add(item.getGameObject());
